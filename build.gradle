@@ -20,6 +20,8 @@ test {
 }
 
 
+// delombok 적용 시작
+
 configurations.implementation.setCanBeResolved(true)
 configurations.testImplementation.setCanBeResolved(true)
 
@@ -39,3 +41,5 @@ task delombok {
 }
 
 compileJava.dependsOn(delombok)
+
+// delombok 적용 끝
