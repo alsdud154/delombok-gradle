@@ -1,0 +1,41 @@
+plugins {
+    id 'java'
+}
+
+group 'org.example'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+    implementation 'org.projectlombok:lombok:1.18.24'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+
+configurations.implementation.setCanBeResolved(true)
+configurations.testImplementation.setCanBeResolved(true)
+
+task delombok {
+    def srcJava = 'src'
+    def srcDelomboked = 'build/src-delomboked'
+
+    inputs.files files(srcJava)
+    outputs.dir file(srcDelomboked)
+
+    doLast {
+        def collection = files(configurations.implementation)
+        def sumTree = collection + fileTree(dir: 'bin')
+        ant.taskdef(name: 'delombok', classname: 'lombok.delombok.ant.Tasks$Delombok', classpath: configurations.implementation.asPath)
+        ant.delombok(from: srcJava, to: srcDelomboked, classpath: sumTree.asPath)
+    }
+}
+
+compileJava.dependsOn(delombok)
