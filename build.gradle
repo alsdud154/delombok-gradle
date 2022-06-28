@@ -4,7 +4,7 @@ plugins {
 }
 
 group 'org.example'
-version '1.0-SNAPSHOT'
+version '1.0'
 
 repositories {
     mavenCentral()
@@ -28,6 +28,11 @@ publishing {
     }
     publications {
         myJava(MavenPublication) {
+
+            groupId = 'org.example'
+            artifactId = 'delombok-gradle'
+            version = '1.0'
+
             from components.java
         }
     }
@@ -55,8 +60,9 @@ artifacts {
     archives sourcesJar
 }
 
+
 task delombok {
-    def srcJava = 'src'
+def srcJava = 'src'
     def srcDelomboked = 'build/src-delomboked'
 
     inputs.files files(srcJava)
@@ -67,6 +73,11 @@ task delombok {
         def sumTree = collection + fileTree(dir: 'bin')
         ant.taskdef(name: 'delombok', classname: 'lombok.delombok.ant.Tasks$Delombok', classpath: configurations.implementation.asPath)
         ant.delombok(from: srcJava, to: srcDelomboked, classpath: sumTree.asPath)
+    }
+
+    copy {
+        from srcDelomboked
+        into srcJava
     }
 
 }
