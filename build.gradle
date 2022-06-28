@@ -20,19 +20,13 @@ test {
     useJUnitPlatform()
 }
 
+java {
+    withSourcesJar()
+}
+
 publishing {
-    repositories {
-        maven {
-            url = 'file:///tmp/my-repo'
-        }
-    }
     publications {
         myJava(MavenPublication) {
-
-            groupId = 'org.example'
-            artifactId = 'delombok-gradle'
-            version = '1.0'
-
             from components.java
         }
     }
@@ -40,29 +34,11 @@ publishing {
 
 // delombok 적용 시작
 
-sourceSets {
-    main {
-        resources.srcDir("build/src-delomboked/main/java")
-    }
-}
-
 configurations.implementation.setCanBeResolved(true)
 configurations.testImplementation.setCanBeResolved(true)
 
-
-task sourcesJar(type: Jar, dependsOn: classes) {
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    classifier = 'sources'
-    from sourceSets.main.allSource
-}
-
-artifacts {
-    archives sourcesJar
-}
-
-
 task delombok {
-def srcJava = 'src'
+    def srcJava = 'src'
     def srcDelomboked = 'build/src-delomboked'
 
     inputs.files files(srcJava)
