@@ -20,10 +20,6 @@ test {
     useJUnitPlatform()
 }
 
-java {
-    withSourcesJar()
-}
-
 publishing {
     publications {
         myJava(MavenPublication) {
@@ -33,6 +29,10 @@ publishing {
 }
 
 // delombok 적용 시작
+
+java {
+    withSourcesJar()
+}
 
 configurations.implementation.setCanBeResolved(true)
 configurations.testImplementation.setCanBeResolved(true)
@@ -49,15 +49,16 @@ task delombok {
         def sumTree = collection + fileTree(dir: 'bin')
         ant.taskdef(name: 'delombok', classname: 'lombok.delombok.ant.Tasks$Delombok', classpath: configurations.implementation.asPath)
         ant.delombok(from: srcJava, to: srcDelomboked, classpath: sumTree.asPath)
-    }
 
-    copy {
-        from srcDelomboked
-        into srcJava
-    }
+        copy {
+            from srcDelomboked
+            into srcJava
+        }
 
+    }
 }
 
-compileJava.dependsOn(delombok)
+// delombok을 실행할 task name으로 변경해야함.( ex: taskName.dependsOn(delombok) )
+publishToMavenLocal.dependsOn(delombok)
 
 // delombok 적용 끝

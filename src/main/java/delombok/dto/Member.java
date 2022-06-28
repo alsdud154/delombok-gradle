@@ -10,4 +10,6 @@ public class Member {
     private String name;
     // 나이
     private Integer age;
+
+    private Team team;
 }
