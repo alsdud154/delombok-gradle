@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'maven-publish'
 }
 
 group 'org.example'
@@ -19,11 +20,40 @@ test {
     useJUnitPlatform()
 }
 
+publishing {
+    repositories {
+        maven {
+            url = 'file:///tmp/my-repo'
+        }
+    }
+    publications {
+        myJava(MavenPublication) {
+            from components.java
+        }
+    }
+}
 
 // delombok 적용 시작
 
+sourceSets {
+    main {
+        resources.srcDir("build/src-delomboked/main/java")
+    }
+}
+
 configurations.implementation.setCanBeResolved(true)
 configurations.testImplementation.setCanBeResolved(true)
+
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives sourcesJar
+}
 
 task delombok {
     def srcJava = 'src'
@@ -38,6 +68,7 @@ task delombok {
         ant.taskdef(name: 'delombok', classname: 'lombok.delombok.ant.Tasks$Delombok', classpath: configurations.implementation.asPath)
         ant.delombok(from: srcJava, to: srcDelomboked, classpath: sumTree.asPath)
     }
+
 }
 
 compileJava.dependsOn(delombok)
