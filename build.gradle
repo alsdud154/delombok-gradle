@@ -55,10 +55,13 @@ task delombok {
             into srcJava
         }
 
+        println '***** Recover the original source after deployment *****'
     }
+
 }
 
 // delombok을 실행할 task name으로 변경해야함.( ex: taskName.dependsOn(delombok) )
 publishToMavenLocal.dependsOn(delombok)
+
 
 // delombok 적용 끝
