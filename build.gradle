@@ -38,7 +38,7 @@ configurations.implementation.setCanBeResolved(true)
 configurations.testImplementation.setCanBeResolved(true)
 
 task delombok {
-    def srcJava = 'src'
+    def srcJava = 'src/java'
     def srcDelomboked = 'build/src-delomboked'
 
     inputs.files files(srcJava)
@@ -60,8 +60,31 @@ task delombok {
 
 }
 
+// lombok -> delombok[.java]
+task compileDelombokedJava(type: JavaCompile) {
+    source = fileTree('src-delomboked')
+    classpath = files(configurations.implementation)
+    destinationDir = file('build/classes/java/main') // .class 파일을 저장할 디렉토리 지정
+}
+
+// delombok[.java] -> delombok[.class] compile
+task compileDelombok(type: JavaCompile) {
+    source = fileTree('build/src-delomboked/main/java') // 소스 디렉토리 변경
+    classpath = sourceSets.main.compileClasspath
+    destinationDir = file('build/src-delomboked/main/classes') // .class 파일을 저장할 디렉토리 지정
+}
+
+//
+task copyDelombokClass(type: Copy) {
+    from 'build/src-delomboked/main/classes' // 클래스 파일이 있는 디렉토리
+    into 'build/classes/java/main' // 복사할 대상 디렉토리
+}
+
+
 // delombok을 실행할 task name으로 변경해야함.( ex: taskName.dependsOn(delombok) )
-publishToMavenLocal.dependsOn(delombok)
+tasks.compileDelombok.dependsOn delombok
+tasks.copyDelombokClass.dependsOn compileDelombok
+tasks.jar.dependsOn copyDelombokClass
 
 
 // delombok 적용 끝
